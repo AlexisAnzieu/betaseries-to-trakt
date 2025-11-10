@@ -23,6 +23,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { clientId, clientSecret, deviceCode } = (req.body ??
     {}) as DeviceTokenRequestBody;
 
+  console.log("[trakt-device-token] Incoming request", {
+    method: req.method,
+    hasClientId: Boolean(clientId),
+    hasClientSecret: Boolean(clientSecret),
+    hasDeviceCode: Boolean(deviceCode),
+  });
+
   if (!clientId || !clientSecret || !deviceCode) {
     res
       .status(400)
@@ -36,6 +43,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       clientSecret,
       deviceCode
     );
+
+    console.log("[trakt-device-token] Trakt response", {
+      status: traktResponse.status,
+      hasBody: Boolean(traktResponse.body),
+      bodyType: typeof traktResponse.body,
+    });
+
     res
       .status(traktResponse.status)
       .json(
@@ -44,6 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           : traktResponse.body
       );
   } catch (error) {
+    console.error("[trakt-device-token] Failed to exchange code", error);
     res.status(500).json({
       error: error instanceof Error ? error.message : "Unexpected Trakt error",
     });
