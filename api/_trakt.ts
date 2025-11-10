@@ -1,3 +1,6 @@
+import { Buffer } from "node:buffer";
+import { gunzipSync, inflateSync } from "node:zlib";
+
 const TRAKT_BASE_URL = "https://api.trakt.tv";
 const TRAKT_USER_AGENT =
   "betaseries-to-trakt/1.0 (+https://github.com/AlexisAnzieu/betaseries-to-trakt)";
@@ -8,11 +11,30 @@ interface TraktResponse<T> {
   headers: Headers;
 }
 
+const decodeBody = (buffer: Buffer, encoding: string | null): Buffer => {
+  if (!encoding || encoding === "identity") {
+    return buffer;
+  }
+
+  if (encoding.includes("gzip") || encoding.includes("x-gzip")) {
+    return gunzipSync(buffer);
+  }
+
+  if (encoding.includes("deflate")) {
+    return inflateSync(buffer);
+  }
+
+  return buffer;
+};
+
 const parseResponseBody = async <T>(
   response: Response
 ): Promise<T | string> => {
   const contentType = response.headers.get("content-type") ?? "";
-  const raw = await response.text();
+  const encoding = response.headers.get("content-encoding");
+  const buffer = Buffer.from(await response.arrayBuffer());
+  const decoded = decodeBody(buffer, encoding);
+  const raw = decoded.toString("utf-8");
 
   if (!raw) {
     return "";
@@ -35,12 +57,17 @@ const toTraktResponse = async <T>(
   const body = await parseResponseBody<T>(response);
 
   if (response.status >= 400) {
+    const preview =
+      typeof body === "string"
+        ? body.slice(0, 200)
+        : JSON.stringify(body).slice(0, 200);
+
     console.warn("[trakt] Request failed", {
       url: response.url,
       status: response.status,
       statusText: response.statusText,
       headers: Object.fromEntries(response.headers.entries()),
-      bodyPreview: typeof body === "string" ? body.slice(0, 200) : body,
+      bodyPreview: preview,
     });
   }
 
