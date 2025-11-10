@@ -1,14 +1,14 @@
-import Papa from 'papaparse'
-import type { ParseResult } from 'papaparse'
-import type { MovieCsvRow, ShowCsvRow } from './types'
+import Papa from "papaparse";
+import type { ParseResult } from "papaparse";
+import type { MovieCsvRow, ShowCsvRow } from "./types";
 
 interface CsvParseOptions<T> {
-  file: File
-  map: (row: Record<string, unknown>) => T | null
+  file: File;
+  map: (row: Record<string, unknown>) => T | null;
 }
 
 const trimValue = (value: unknown) =>
-  typeof value === 'string' ? value.trim() : value
+  typeof value === "string" ? value.trim() : value;
 
 const parseCsv = async <T>({ file, map }: CsvParseOptions<T>): Promise<T[]> =>
   new Promise((resolve, reject) => {
@@ -17,35 +17,35 @@ const parseCsv = async <T>({ file, map }: CsvParseOptions<T>): Promise<T[]> =>
       skipEmptyLines: true,
       complete: (results: ParseResult<Record<string, unknown>>) => {
         if (results.errors.length) {
-          reject(new Error(results.errors[0].message))
-          return
+          reject(new Error(results.errors[0].message));
+          return;
         }
 
-        const rows: T[] = []
+        const rows: T[] = [];
         for (const rawRow of results.data) {
-          const mapped = map(rawRow)
+          const mapped = map(rawRow);
           if (mapped) {
-            rows.push(mapped)
+            rows.push(mapped);
           }
         }
 
-        resolve(rows)
+        resolve(rows);
       },
       error: (error: Error) => {
-        reject(error)
+        reject(error);
       },
-    })
-  })
+    });
+  });
 
 export const parseShowCsv = async (file: File) =>
   parseCsv<ShowCsvRow>({
     file,
     map: (row) => {
-      const id = trimValue(row.id)
-      const title = trimValue(row.title)
+      const id = trimValue(row.id);
+      const title = trimValue(row.title);
 
       if (!id || !title) {
-        return null
+        return null;
       }
 
       return {
@@ -56,19 +56,19 @@ export const parseShowCsv = async (file: File) =>
         remaining: row.remaining ? String(trimValue(row.remaining)) : undefined,
         status: row.status ? String(trimValue(row.status)) : undefined,
         tags: row.tags ? String(trimValue(row.tags)) : undefined,
-      }
+      };
     },
-  })
+  });
 
 export const parseMovieCsv = async (file: File) =>
   parseCsv<MovieCsvRow>({
     file,
     map: (row) => {
-      const id = trimValue(row.id)
-      const title = trimValue(row.title)
+      const id = trimValue(row.id);
+      const title = trimValue(row.title);
 
       if (!id || !title) {
-        return null
+        return null;
       }
 
       return {
@@ -76,6 +76,6 @@ export const parseMovieCsv = async (file: File) =>
         title: String(title),
         status: row.status ? String(trimValue(row.status)) : undefined,
         date: row.date ? String(trimValue(row.date)) : undefined,
-      }
+      };
     },
-  })
+  });
