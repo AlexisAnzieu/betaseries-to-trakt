@@ -217,9 +217,18 @@ export default defineConfig({
             }
 
             const contentType = response.headers.get("content-type") ?? "";
-            const responseBody = contentType.includes("application/json")
-              ? await response.json()
-              : await response.text();
+            const raw = await response.text();
+            let responseBody: unknown = raw;
+
+            if (!raw) {
+              responseBody = "";
+            } else if (contentType.includes("application/json")) {
+              try {
+                responseBody = JSON.parse(raw);
+              } catch {
+                responseBody = raw;
+              }
+            }
 
             sendJson(
               res,

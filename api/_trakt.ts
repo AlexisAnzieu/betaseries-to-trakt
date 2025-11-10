@@ -8,11 +8,21 @@ interface TraktResponse<T> {
 
 const readJson = async <T>(response: Response): Promise<T | string> => {
   const contentType = response.headers.get("content-type") ?? "";
-  if (contentType.includes("application/json")) {
-    return (await response.json()) as T;
+  const raw = await response.text();
+
+  if (!raw) {
+    return "";
   }
 
-  return response.text();
+  if (contentType.includes("application/json")) {
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return raw;
+    }
+  }
+
+  return raw;
 };
 
 export const corsHeaders = {
