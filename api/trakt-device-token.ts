@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { applyCors, exchangeTraktDeviceCode } from "./_trakt";
+import { applyCors, exchangeTraktDeviceCode } from "./_trakt.js";
 
 interface DeviceTokenRequestBody {
   clientId?: string;

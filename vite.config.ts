@@ -5,7 +5,7 @@ import {
   applyCors,
   exchangeTraktDeviceCode,
   requestTraktDeviceCode,
-} from "./api/_trakt";
+} from "./api/_trakt.js";
 
 interface DeviceCodeRequestBody {
   clientId?: string;

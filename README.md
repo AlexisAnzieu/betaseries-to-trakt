@@ -44,6 +44,11 @@ Visit `http://localhost:5173` and follow the on-screen steps:
    the application on trakt.tv.
 4. Review the summary and launch the migration.
 
+The Vite dev server ships with a local proxy that mirrors the serverless routes
+under `/api/*`, so no extra tooling is required while iterating. The proxy keeps
+the client secret away from the browser-to-Trakt request chain and returns the
+permissive CORS headers the SPA expects.
+
 The app mirrors the original mapping rules:
 
 - **Shows** with `status === 0` go to the Trakt watchlist, otherwise to history
@@ -61,12 +66,25 @@ npm run build  # type-check + production bundle
 
 ### Notes & limitations
 
-- Trakt&apos;s device flow requires your client secret. The secret never leaves the
-  browser, but you should only run this tool locally.
+- Trakt&apos;s device flow requires your client secret. The UI only sends it to the
+  backend proxies at `/api/trakt-*`, which forward the request to Trakt from the
+  server (Vercel in production, Node inside Vite during development).
 - The app serially resolves show/movie identifiers via the BetaSeries API; large
   libraries may take a little time because of rate limits.
 - The response panel lists any items the APIs could not resolve so you can fix
   them manually.
+
+### Deploying on Vercel
+
+- The `api/` directory contains three Node serverless functions:
+  - `trakt-device-code` – requests device codes from Trakt without CORS issues
+  - `trakt-device-token` – exchanges device codes for access/refresh tokens
+  - `trakt-sync` – posts history/watchlist payloads to Trakt
+- Deploy with `vercel` (or push to a Vercel-connected repository). Configure any
+  desired environment variables in the dashboard; the UI accepts client id and
+  secret at runtime, so no secrets must be baked into the build.
+- Optional: run `vercel dev` for full parity, although the bundled Vite proxy
+  already mimics the production endpoints locally.
 
 ### Project structure
 
