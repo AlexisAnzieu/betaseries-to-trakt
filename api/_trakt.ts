@@ -1,4 +1,5 @@
 const TRAKT_BASE_URL = "https://api.trakt.tv";
+const TRAKT_USER_AGENT = "betaseries-to-trakt/1.0 (+https://github.com/AlexisAnzieu/betaseries-to-trakt)";
 
 interface TraktResponse<T> {
   status: number;
@@ -6,7 +7,7 @@ interface TraktResponse<T> {
   headers: Headers;
 }
 
-const readJson = async <T>(response: Response): Promise<T | string> => {
+const parseResponseBody = async <T>(response: Response): Promise<T | string> => {
   const contentType = response.headers.get("content-type") ?? "";
   const raw = await response.text();
 
@@ -23,6 +24,26 @@ const readJson = async <T>(response: Response): Promise<T | string> => {
   }
 
   return raw;
+};
+
+const toTraktResponse = async <T>(response: Response): Promise<TraktResponse<T>> => {
+  const body = await parseResponseBody<T>(response);
+
+  if (response.status >= 400) {
+    console.warn("[trakt] Request failed", {
+      url: response.url,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      bodyPreview: typeof body === "string" ? body.slice(0, 200) : body,
+    });
+  }
+
+  return {
+    status: response.status,
+    body,
+    headers: response.headers,
+  };
 };
 
 export const corsHeaders = {
@@ -44,15 +65,15 @@ export const requestTraktDeviceCode = async <T = unknown>(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Accept: "application/json",
+      "User-Agent": TRAKT_USER_AGENT,
+      "trakt-api-version": "2",
+      "trakt-api-key": clientId,
     },
     body: JSON.stringify({ client_id: clientId }),
   });
 
-  return {
-    status: response.status,
-    body: await readJson<T>(response),
-    headers: response.headers,
-  };
+  return toTraktResponse<T>(response);
 };
 
 export const exchangeTraktDeviceCode = async <T = unknown>(
@@ -64,6 +85,10 @@ export const exchangeTraktDeviceCode = async <T = unknown>(
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Accept: "application/json",
+      "User-Agent": TRAKT_USER_AGENT,
+      "trakt-api-version": "2",
+      "trakt-api-key": clientId,
     },
     body: JSON.stringify({
       client_id: clientId,
@@ -72,9 +97,5 @@ export const exchangeTraktDeviceCode = async <T = unknown>(
     }),
   });
 
-  return {
-    status: response.status,
-    body: await readJson<T>(response),
-    headers: response.headers,
-  };
+  return toTraktResponse<T>(response);
 };
