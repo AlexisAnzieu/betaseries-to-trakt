@@ -1,5 +1,6 @@
 const TRAKT_BASE_URL = "https://api.trakt.tv";
-const TRAKT_USER_AGENT = "betaseries-to-trakt/1.0 (+https://github.com/AlexisAnzieu/betaseries-to-trakt)";
+const TRAKT_USER_AGENT =
+  "betaseries-to-trakt/1.0 (+https://github.com/AlexisAnzieu/betaseries-to-trakt)";
 
 interface TraktResponse<T> {
   status: number;
@@ -7,7 +8,9 @@ interface TraktResponse<T> {
   headers: Headers;
 }
 
-const parseResponseBody = async <T>(response: Response): Promise<T | string> => {
+const parseResponseBody = async <T>(
+  response: Response
+): Promise<T | string> => {
   const contentType = response.headers.get("content-type") ?? "";
   const raw = await response.text();
 
@@ -26,7 +29,9 @@ const parseResponseBody = async <T>(response: Response): Promise<T | string> => 
   return raw;
 };
 
-const toTraktResponse = async <T>(response: Response): Promise<TraktResponse<T>> => {
+const toTraktResponse = async <T>(
+  response: Response
+): Promise<TraktResponse<T>> => {
   const body = await parseResponseBody<T>(response);
 
   if (response.status >= 400) {
