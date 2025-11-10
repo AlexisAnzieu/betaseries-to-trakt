@@ -28,6 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     hasClientId: Boolean(clientId),
     hasClientSecret: Boolean(clientSecret),
     hasDeviceCode: Boolean(deviceCode),
+    deviceCodeLength: deviceCode?.length ?? 0,
   });
 
   if (!clientId || !clientSecret || !deviceCode) {
@@ -48,6 +49,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       status: traktResponse.status,
       hasBody: Boolean(traktResponse.body),
       bodyType: typeof traktResponse.body,
+      bodyPreview:
+        typeof traktResponse.body === "string"
+          ? traktResponse.body.slice(0, 120)
+          : JSON.stringify(traktResponse.body).slice(0, 120),
     });
 
     res
