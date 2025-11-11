@@ -106,6 +106,7 @@ export const requestTraktDeviceCode = async <T = unknown>(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      "Accept-Encoding": "identity",
       "User-Agent": TRAKT_USER_AGENT,
       "trakt-api-version": "2",
       "trakt-api-key": clientId,
@@ -126,6 +127,7 @@ export const exchangeTraktDeviceCode = async <T = unknown>(
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
+      "Accept-Encoding": "identity",
       "User-Agent": TRAKT_USER_AGENT,
       "trakt-api-version": "2",
       "trakt-api-key": clientId,
