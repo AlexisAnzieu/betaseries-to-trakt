@@ -111,36 +111,6 @@ function App() {
           tokens={tokens}
         />
       </main>
-
-      <footer className="app__footer">
-        <small>
-          Need a refresher? Review the original CLI workflow on{" "}
-          <a
-            href="https://github.com/tuxity/betaseries-to-trakt"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>{" "}
-          or the official{" "}
-          <a
-            href="https://developers.betaseries.com/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            BetaSeries
-          </a>{" "}
-          and{" "}
-          <a
-            href="https://trakt.docs.apiary.io/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Trakt
-          </a>{" "}
-          documentation.
-        </small>
-      </footer>
     </div>
   );
 }

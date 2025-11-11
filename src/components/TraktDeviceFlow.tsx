@@ -82,7 +82,7 @@ export const TraktDeviceFlow = ({
       });
 
     const poll = async () => {
-      const minimumDelay = 10_000;
+      const minimumDelay = 15_000;
       const baseDelay = Math.max(deviceCode.interval * 1_000, minimumDelay);
       let delay = baseDelay;
 

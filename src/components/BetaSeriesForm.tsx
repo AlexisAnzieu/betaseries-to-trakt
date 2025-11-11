@@ -38,22 +38,5 @@ export const BetaSeriesForm = ({
         }
       />
     </div>
-
-    <div className="field">
-      <label className="field__label" htmlFor={fieldId("token")}>
-        Member token (optional)
-      </label>
-      <input
-        id={fieldId("token")}
-        autoComplete="off"
-        inputMode="text"
-        className="field__input"
-        placeholder="Leave empty if you only use public endpoints"
-        value={credentials.token ?? ""}
-        onChange={(event) =>
-          onChange({ ...credentials, token: event.currentTarget.value.trim() })
-        }
-      />
-    </div>
   </section>
 );
