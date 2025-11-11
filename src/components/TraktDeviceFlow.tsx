@@ -82,9 +82,23 @@ export const TraktDeviceFlow = ({
       });
 
     const poll = async () => {
-      let delay = deviceCode.interval * 1_000;
+      const minimumDelay = 10_000;
+      const baseDelay = Math.max(deviceCode.interval * 1_000, minimumDelay);
+      let delay = baseDelay;
 
       while (!isCancelled) {
+        if (expiresAt && Date.now() > expiresAt) {
+          setStatus("error");
+          setMessage("Device code expired. Request a new code and try again.");
+          return;
+        }
+
+        await wait(delay);
+
+        if (isCancelled) {
+          return;
+        }
+
         if (expiresAt && Date.now() > expiresAt) {
           setStatus("error");
           setMessage("Device code expired. Request a new code and try again.");
@@ -117,10 +131,10 @@ export const TraktDeviceFlow = ({
 
           switch (error.code) {
             case "authorization_pending":
-              // keep polling
+              delay = baseDelay;
               break;
             case "slow_down":
-              delay += 5_000;
+              delay = Math.max(delay + 5_000, baseDelay + 5_000);
               break;
             case "expired_token":
               setStatus("error");
@@ -134,8 +148,6 @@ export const TraktDeviceFlow = ({
               return;
           }
         }
-
-        await wait(delay);
       }
     };
 
