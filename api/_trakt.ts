@@ -16,12 +16,20 @@ const decodeBody = (buffer: Buffer, encoding: string | null): Buffer => {
     return buffer;
   }
 
-  if (encoding.includes("gzip") || encoding.includes("x-gzip")) {
-    return gunzipSync(buffer);
-  }
+  try {
+    if (encoding.includes("gzip") || encoding.includes("x-gzip")) {
+      return gunzipSync(buffer);
+    }
 
-  if (encoding.includes("deflate")) {
-    return inflateSync(buffer);
+    if (encoding.includes("deflate")) {
+      return inflateSync(buffer);
+    }
+  } catch (error) {
+    console.warn("[trakt] Failed to decode body", {
+      encoding,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return buffer;
   }
 
   return buffer;
